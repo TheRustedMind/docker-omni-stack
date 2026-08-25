@@ -1,0 +1,22 @@
+services:
+  dify:
+    image: langgenius/dify-api:latest
+    container_name: ${DIFY_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_DATABASE: ${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ${VOL_DIFY_STORAGE:-${PROJECT_DATA_DIR:-../data}/dify}:/app/api/storage
+    ports:
+      - "${DIFY_HOST_PORT}:5001"
+    networks:
+      - project-network
+
+volumes:
+  dify_storage:

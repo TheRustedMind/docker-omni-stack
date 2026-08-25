@@ -1,0 +1,17 @@
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ${GRAFANA_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - ${VOL_GRAFANA_DATA:-${PROJECT_DATA_DIR:-../data}/grafana}:/var/lib/grafana
+    ports:
+      - "${GRAFANA_HOST_PORT}:3000"
+    networks:
+      - project-network
+
+volumes:
+  grafana_data:

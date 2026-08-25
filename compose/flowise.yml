@@ -1,0 +1,21 @@
+services:
+  flowise:
+    image: flowiseai/flowise
+    container_name: ${FLOWISE_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      DATABASE_TYPE: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_NAME: ${POSTGRES_DB}
+    volumes:
+      - ${VOL_FLOWISE_DATA:-${PROJECT_DATA_DIR:-../data}/flowise}:/root/.flowise
+    ports:
+      - "${FLOWISE_HOST_PORT}:3000"
+    networks:
+      - project-network
+
+volumes:
+  flowise_data:

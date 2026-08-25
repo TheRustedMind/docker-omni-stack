@@ -1,0 +1,15 @@
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: ${LITELLM_CONTAINER_NAME}
+    restart: unless-stopped
+    command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "8" ]
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+    volumes:
+      - ${PROJECT_APPS_DIR:-../apps}/litellm:/app/
+    ports:
+      - "${LITELLM_HOST_PORT}:4000"
+    networks:
+      - project-network

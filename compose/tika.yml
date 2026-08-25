@@ -1,0 +1,9 @@
+services:
+  tika:
+    image: apache/tika:latest
+    container_name: ${TIKA_CONTAINER_NAME}
+    restart: unless-stopped
+    ports:
+      - "${TIKA_PORT}:9998"
+    networks:
+      - project-network

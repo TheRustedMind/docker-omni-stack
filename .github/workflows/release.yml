@@ -1,0 +1,51 @@
+name: Release Pipeline
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch: # Allows manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Compile stack.exe
+        shell: powershell
+        run: |
+          Write-Host "Installing ps2exe..."
+          Install-Module -Name ps2exe -Scope CurrentUser -Force -AllowClobber
+          
+          Write-Host "Compiling .\stack.ps1 to stack.exe..."
+          Invoke-ps2exe -InputFile .\stack.ps1 -OutputFile .\stack.exe -RequireAdmin:$false -NoConfigFile -Verbose
+          
+          if (-not (Test-Path .\stack.exe)) {
+              Write-Error "Compilation failed!"
+              exit 1
+          }
+          Write-Host "Compilation successful!"
+
+      - name: Prepare Release Artifacts
+        shell: powershell
+        run: |
+          Write-Host "Zipping release payload..."
+          Compress-Archive -Path .\stack.exe, .\config, .\compose -DestinationPath .\docker-omni-stack-release.zip
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
+        with:
+          files: .\docker-omni-stack-release.zip
+
+      - name: Upload Artifact (For Manual Runs)
+        uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          name: docker-omni-stack-release
+          path: .\docker-omni-stack-release.zip

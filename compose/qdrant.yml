@@ -1,0 +1,15 @@
+services:
+  qdrant:
+    image: qdrant/qdrant
+    container_name: ${QDRANT_CONTAINER_NAME}
+    restart: unless-stopped
+    volumes:
+      - ${VOL_QDRANT_DATA:-${PROJECT_DATA_DIR:-../data}/qdrant}:/qdrant/storage
+    ports:
+      - "${QDRANT_HTTP_PORT}:6333"
+      - "${QDRANT_GRPC_PORT}:6334"
+    networks:
+      - project-network
+
+volumes:
+  qdrant_data:

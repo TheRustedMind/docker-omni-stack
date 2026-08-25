@@ -1,0 +1,17 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: ${N8N_CONTAINER_NAME}
+    restart: unless-stopped
+    ports:
+      - "${N8N_HOST_PORT}:5678"
+    environment:
+      TZ: ${TZ}
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE}
+    volumes:
+      - ${VOL_N8N_DATA:-${PROJECT_DATA_DIR:-../data}/n8n}:/home/node/.n8n
+    networks:
+      - project-network
+
+volumes:
+  n8n_data:

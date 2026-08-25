@@ -1,0 +1,27 @@
+services:
+  cliproxyapi:
+    image: eceasy/cli-proxy-api:latest
+    container_name: ${CLIPROXYAPI_CONTAINER_NAME}
+    restart: unless-stopped
+    ports:
+      - "${CLIPROXYAPI_HOST_PORT}:8317"
+    configs:
+      - source: cliproxyapi_config
+        target: /CLIProxyAPI/config.yaml
+    volumes:
+      - ${VOL_CLIPROXYAPI_AUTH:-${PROJECT_DATA_DIR:-../data}/cliproxyapi/auth}:/root/.cli-proxy-api
+    networks:
+      - project-network
+
+volumes:
+  cliproxyapi_auth:
+
+configs:
+  cliproxyapi_config:
+    content: |
+      host: "0.0.0.0"
+      port: 8317
+      auth-dir: "/root/.cli-proxy-api"
+      api-keys:
+        - "n8n-local-key"
+      debug: true

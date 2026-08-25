@@ -1,0 +1,15 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ${PROMETHEUS_CONTAINER_NAME}
+    restart: unless-stopped
+    volumes:
+      - ${PROJECT_APPS_DIR:-../apps}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${VOL_PROMETHEUS_DATA:-${PROJECT_DATA_DIR:-../data}/prometheus}:/prometheus
+    ports:
+      - "${PROMETHEUS_HOST_PORT}:9090"
+    networks:
+      - project-network
+
+volumes:
+  prometheus_data:

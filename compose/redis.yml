@@ -1,0 +1,12 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ${REDIS_CONTAINER_NAME}
+    restart: unless-stopped
+    volumes:
+      - ${VOL_REDIS_DATA:-${PROJECT_DATA_DIR:-../data}/redis}:/data
+    networks:
+      - project-network
+
+volumes:
+  redis_data:

@@ -1,0 +1,12 @@
+services:
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: ${GOTENBERG_CONTAINER_NAME}
+    restart: unless-stopped
+    command:
+      - "gotenberg"
+      - "--api-port=3000"
+    ports:
+      - "${GOTENBERG_PORT}:3000"
+    networks:
+      - project-network

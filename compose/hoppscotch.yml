@@ -1,0 +1,31 @@
+services:
+  hoppscotch:
+    image: hoppscotch/hoppscotch:latest
+    container_name: ${HOPPSCOTCH_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${HOPPSCOTCH_DATABASE_URL}
+      DATA_ENCRYPTION_KEY: ${HOPPSCOTCH_DATA_ENCRYPTION_KEY}
+      WHITELISTED_ORIGINS: ${HOPPSCOTCH_WHITELISTED_ORIGINS}
+      JWT_SECRET: ${HOPPSCOTCH_JWT_SECRET}
+      SESSION_SECRET: ${HOPPSCOTCH_SESSION_SECRET}
+      VITE_BASE_URL: ${HOPPSCOTCH_VITE_BASE_URL}
+    ports:
+      - "${HOPPSCOTCH_HOST_PORT}:3000"
+    networks:
+      - project-network
+    depends_on:
+      hoppscotch-migrate:
+        condition: service_completed_successfully
+
+  hoppscotch-migrate:
+    image: hoppscotch/hoppscotch:latest
+    container_name: hoppscotch-migrate
+    environment:
+      DATABASE_URL: ${HOPPSCOTCH_DATABASE_URL}
+    entrypoint: ["pnpm", "exec", "prisma", "migrate", "deploy"]
+    networks:
+      - project-network
+    depends_on:
+      postgres:
+        condition: service_healthy

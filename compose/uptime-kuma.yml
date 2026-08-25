@@ -1,0 +1,14 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: ${UPTIME_KUMA_CONTAINER_NAME}
+    restart: unless-stopped
+    volumes:
+      - ${VOL_UPTIMEKUMA_DATA:-${PROJECT_DATA_DIR:-../data}/uptime-kuma}:/app/data
+    ports:
+      - "${UPTIME_KUMA_HOST_PORT}:3001"
+    networks:
+      - project-network
+
+volumes:
+  uptimekuma_data:
