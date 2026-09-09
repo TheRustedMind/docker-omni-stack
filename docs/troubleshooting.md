@@ -6,7 +6,7 @@
 
 ### Port already in use
 **Symptoms:** `Bind for 0.0.0.0:xxxx failed: port is already allocated.`
-**Solution:** Another application on your PC is using the port. Change the corresponding `HOST_PORT` variable in the `config/*.env` file for the failing service, then restart it.
+**Solution:** Another application on your PC is using port 80 or 443. Stop the conflicting application (e.g., IIS or another web server) so Caddy can bind to the necessary ingress ports.
 
 ### Environment file missing
 **Symptoms:** `stack.ps1` says `Missing environment file for...`
@@ -14,7 +14,7 @@
 
 ### Service name cannot be resolved
 **Symptoms:** A container (e.g., n8n) complains it cannot reach another container (e.g., postgres).
-**Solution:** Ensure both containers are running. Ensure they are on the `project-network`. Ensure you are using the service name (`postgres`) and not `localhost`. Use `.\stack.ps1 status` to check if containers are healthy.
+**Solution:** Ensure both containers are running. Ensure they share an explicit dependency in `Registry.ps1` so they are attached to the correct group network. Ensure you are using the service name (`postgres`) and not `localhost`. Use `.\stack status` to check if containers are healthy.
 
 ### Persistent data is missing
 **Symptoms:** After restarting, a service loses all configuration.

@@ -47,11 +47,11 @@ This repository's orchestration code and configuration files are licensed under 
 
 > **Third-Party Licensing Disclaimer:** The license above applies *exclusively* to the orchestration code (PowerShell scripts and YAML configurations) within this repository. The individual services and Docker images orchestrated by this framework (e.g., n8n, Redis, Qdrant) are subject to their respective creators' open-source and fair-code licenses.
 
-This infrastructure comes pre-configured with 21 production-ready services, logically grouped into modular ecosystems:
+This infrastructure comes pre-configured with 22 production-ready services, logically grouped into modular ecosystems:
 
 - **Automation & Integration**: `n8n`, `cliproxyapi`
 - **AI Ecosystem**: `ollama`, `litellm`, `open-webui`, `flowise`, `dify`, `qdrant` (Vector DB)
-- **Data & Databases**: `postgres`, `redis`, `minio` (S3 Storage)
+- **Data & Databases**: `postgres`, `pgadmin`, `redis`, `minio` (S3 Storage)
 - **Monitoring & Observability**: `prometheus`, `grafana`, `uptime-kuma`
 - **Networking & Security**: `caddy` (Reverse Proxy), `authentik` (SSO/Auth)
 - **Tools & Processing**: `hoppscotch` (API testing), `gitea` (Git hosting), `rabbitmq` (Message queue), `tika`, `gotenberg`
@@ -94,6 +94,7 @@ Start specific groups:
 ```powershell
 .\stack up -Group data
 .\stack up -Group ai
+.\stack up -Group ai-apps
 .\stack up -Group monitoring
 ```
 
@@ -126,7 +127,7 @@ Start specific services (automatically starts dependencies):
 Configuration files are stored in `config/`.
 Compose files are stored in `compose/`.
 Data is mounted in `data/`.
-You can add a new service by creating its `.yml` and `.env` files, then adding it to `$Registry` inside `stack.ps1`.
+You can add a new service by creating its `.yml` and `.env` files, then adding it to `$Registry` inside `scripts/Registry.ps1`.
 
 ## Documentation
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md) - Deep dive into architecture, service discovery, and native volume switching.
@@ -140,6 +141,37 @@ The `docs/` folder contains advanced operational guides:
 - [docs/security.md](docs/security.md) - Environment security and best practices.
 - [docs/backup.md](docs/backup.md) - Data persistence and backup strategies.
 - [docs/troubleshooting.md](docs/troubleshooting.md) - Solutions to common infrastructure errors.
+
+## Service Status & Automated Testing
+
+This repository includes an automated testing framework to ensure all services are healthy and functional. The table below is automatically updated by `.\stack test`.
+
+<!-- TEST_RESULTS_START -->
+| Service | Status | Last Tested | Has Custom Test |
+|---------|--------|-------------|-----------------|
+| **authentik** | Unknown | Never | No |
+| **caddy** | Pass | 2026-09-04 21.18.17 | No |
+| **cliproxyapi** | Pass | 2026-09-04 21.18.17 | No |
+| **dify** | Unknown | Never | No |
+| **flowise** | Unknown | Never | No |
+| **gitea** | Unknown | Never | No |
+| **gotenberg** | Unknown | Never | No |
+| **grafana** | Unknown | Never | No |
+| **hoppscotch** | Unknown | Never | No |
+| **litellm** | Unknown | Never | No |
+| **minio** | Unknown | Never | No |
+| **n8n** | Unknown | Never | No |
+| **ollama** | Unknown | Never | No |
+| **open-webui** | Unknown | Never | No |
+| **pgadmin** | Unknown | Never | No |
+| **postgres** | Unknown | Never | No |
+| **prometheus** | Unknown | Never | No |
+| **qdrant** | Unknown | Never | No |
+| **rabbitmq** | Unknown | Never | No |
+| **redis** | Unknown | Never | No |
+| **tika** | Unknown | Never | No |
+| **uptime-kuma** | Unknown | Never | No |
+<!-- TEST_RESULTS_END -->
 
 ---
 

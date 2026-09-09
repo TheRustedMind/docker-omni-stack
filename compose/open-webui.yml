@@ -7,10 +7,15 @@ services:
       OLLAMA_BASE_URL: "http://ollama:11434"
     volumes:
       - ${VOL_OPENWEBUI_DATA:-${PROJECT_DATA_DIR:-../data}/open-webui}:/app/backend/data
-    ports:
-      - "${OPEN_WEBUI_HOST_PORT}:8080"
-    networks:
-      - project-network
 
+    networks:
+      - ai-apps-network
+      - ai-network
+
+    healthcheck:
+      test: [CMD-SHELL, 'wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 volumes:
   openwebui_data:

@@ -9,13 +9,17 @@ services:
       DATABASE_PORT: 5432
       DATABASE_USER: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_NAME: ${POSTGRES_DB}
+      DATABASE_NAME: flowise_db
     volumes:
       - ${VOL_FLOWISE_DATA:-${PROJECT_DATA_DIR:-../data}/flowise}:/root/.flowise
-    ports:
-      - "${FLOWISE_HOST_PORT}:3000"
-    networks:
-      - project-network
 
+    networks:
+      - ai-apps-network
+      - data-network
+    healthcheck:
+      test: [CMD-SHELL, 'wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 volumes:
   flowise_data:

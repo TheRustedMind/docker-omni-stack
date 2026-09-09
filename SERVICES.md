@@ -1,10 +1,10 @@
 # Supported Services
 
-Below is a comprehensive list of all 21 services natively implemented in this modular infrastructure. 
+Below is a comprehensive list of all 22 services natively implemented in this modular infrastructure. 
 
 > [!NOTE]
 > **Automatic Dependency Resolution**
-> You never have to worry about manually starting dependencies! If you run `.\stack up open-webui`, the binary will automatically crawl the dependency tree and transparently boot up `ollama` and `postgres` for you in the correct order.
+> You never have to worry about manually starting dependencies! If you run `.\stack up open-webui`, the binary will automatically crawl the dependency tree and transparently boot up `ollama` for you in the correct order.
 
 ## Automation & Integration Group
 - **n8n**: Workflow automation.
@@ -12,6 +12,7 @@ Below is a comprehensive list of all 21 services natively implemented in this mo
 
 ## Data Group
 - **postgres**: Primary relational database.
+- **pgadmin**: Web UI for PostgreSQL. (Depends on: `postgres`)
 - **redis**: Key-value store and cache.
 - **minio**: S3-compatible object storage.
 
@@ -30,7 +31,7 @@ Below is a comprehensive list of all 21 services natively implemented in this mo
 - **prometheus**: Metrics scraper.
 - **grafana**: Metrics visualization dashboard. (Depends on: `prometheus`)
 
-## Networking Group
+## Core / Networking Group (Group: core)
 - **caddy**: Reverse proxy.
 
 ## Auth Group
@@ -44,7 +45,7 @@ Below is a comprehensive list of all 21 services natively implemented in this mo
 - **gotenberg**: Document conversion to PDF.
 
 ## Tools Group
-- **hoppscotch**: Web-based API testing client.
+- **hoppscotch**: Web-based API testing client. (Depends on: `postgres`)
 
 ## Optional Group
 - **rabbitmq**: Message broker queue.

@@ -18,7 +18,7 @@ The infrastructure runs completely relative to the project root directory where 
 
 ## Docker Compose Modular Design
 
-The deployment dynamically combines `compose/base.yml` (containing the shared `project-network`) with any specific service `.yml` and `.env` files via `stack`. This ensures we do not run one massive compose file, allowing lightweight partial deployments.
+The deployment dynamically generates `compose/caddy-dynamic.yml` (containing all the necessary network definitions) and combines it with any specific service `.yml` and `.env` files via `stack`. This ensures we do not run one massive compose file, allowing lightweight partial deployments.
 
 ## Dynamic Native Volume Switching
 
@@ -30,7 +30,7 @@ By default, Docker Compose evaluates storage paths using shell fallback variable
 
 ## Service Discovery & Networking
 
-Containers communicate internally using Docker DNS on the `project-network`. 
+Containers communicate internally using Docker DNS on their respective isolated group subnets (e.g., `data-network`, `automation-network`). Caddy dynamically bridges these networks to provide unified access.
 
 ```text
                     ┌─────────────┐
@@ -65,4 +65,4 @@ Services are logically grouped for easier management (e.g. `core`, `data`, `ai`,
 
 ## Service Dependencies
 
-If a service relies on a database, `stack.exe` handles the start order. For example, `authentik` relies on `postgres` and `redis`. Running `.\stack.exe up authentik` automatically pulls in those data services.
+If a service relies on a database, `.\stack` handles the start order. For example, `authentik` relies on `postgres` and `redis`. Running `.\stack up authentik` automatically pulls in those data services.

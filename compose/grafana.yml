@@ -8,10 +8,14 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
     volumes:
       - ${VOL_GRAFANA_DATA:-${PROJECT_DATA_DIR:-../data}/grafana}:/var/lib/grafana
-    ports:
-      - "${GRAFANA_HOST_PORT}:3000"
-    networks:
-      - project-network
 
+    networks:
+      - monitoring-network
+
+    healthcheck:
+      test: [CMD-SHELL, 'wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 volumes:
   grafana_data:

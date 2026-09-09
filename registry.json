@@ -1,0 +1,201 @@
+{
+    "postgres":  {
+                     "ComposeFile":  "compose/postgres.yml",
+                     "EnvFile":  "config/postgres.env",
+                     "DependsOn":  [
+
+                                   ],
+                     "Group":  "data"
+                 },
+    "caddy":  {
+                  "ComposeFile":  "compose/caddy.yml",
+                  "EnvFile":  "config/caddy.env",
+                  "DependsOn":  [
+
+                                ],
+                  "Group":  "core"
+              },
+    "litellm":  {
+                    "ComposeFile":  "compose/litellm.yml",
+                    "EnvFile":  "config/litellm.env",
+                    "DependsOn":  [
+                                      "postgres"
+                                  ],
+                    "Group":  "ai",
+                    "InternalPort":  4000,
+                    "IsAPI":  true
+                },
+    "open-webui":  {
+                       "ComposeFile":  "compose/open-webui.yml",
+                       "EnvFile":  "config/open-webui.env",
+                       "DependsOn":  [
+                                         "ollama"
+                                     ],
+                       "Group":  "ai-apps",
+                       "InternalPort":  8080
+                   },
+    "authentik":  {
+                      "ComposeFile":  "compose/authentik.yml",
+                      "EnvFile":  "config/authentik.env",
+                      "DependsOn":  [
+                                        "postgres",
+                                        "redis"
+                                    ],
+                      "Group":  "auth",
+                      "InternalPort":  9000
+                  },
+    "redis":  {
+                  "ComposeFile":  "compose/redis.yml",
+                  "EnvFile":  "config/redis.env",
+                  "DependsOn":  [
+
+                                ],
+                  "Group":  "data"
+              },
+    "gotenberg":  {
+                      "ComposeFile":  "compose/gotenberg.yml",
+                      "EnvFile":  "config/gotenberg.env",
+                      "DependsOn":  [
+
+                                    ],
+                      "Group":  "processing",
+                      "InternalPort":  3000
+                  },
+    "grafana":  {
+                    "ComposeFile":  "compose/grafana.yml",
+                    "EnvFile":  "config/grafana.env",
+                    "DependsOn":  [
+                                      "prometheus"
+                                  ],
+                    "Group":  "monitoring",
+                    "InternalPort":  3000
+                },
+    "hoppscotch":  {
+                       "ComposeFile":  "compose/hoppscotch.yml",
+                       "EnvFile":  "config/hoppscotch.env",
+                       "DependsOn":  [
+                                         "postgres"
+                                     ],
+                       "Group":  "tools",
+                       "InternalPort":  3000
+                   },
+    "prometheus":  {
+                       "ComposeFile":  "compose/prometheus.yml",
+                       "EnvFile":  "config/prometheus.env",
+                       "DependsOn":  [
+
+                                     ],
+                       "Group":  "monitoring",
+                       "InternalPort":  9090
+                   },
+    "dify":  {
+                 "ComposeFile":  "compose/dify.yml",
+                 "EnvFile":  "config/dify.env",
+                 "DependsOn":  [
+                                   "postgres",
+                                   "redis"
+                               ],
+                 "Group":  "ai-apps",
+                 "InternalPort":  5001
+             },
+    "qdrant":  {
+                   "ComposeFile":  "compose/qdrant.yml",
+                   "EnvFile":  "config/qdrant.env",
+                   "DependsOn":  [
+
+                                 ],
+                   "Group":  "ai",
+                   "InternalPort":  6333
+               },
+    "tika":  {
+                 "ComposeFile":  "compose/tika.yml",
+                 "EnvFile":  "config/tika.env",
+                 "DependsOn":  [
+
+                               ],
+                 "Group":  "processing",
+                 "InternalPort":  9998
+             },
+    "flowise":  {
+                    "ComposeFile":  "compose/flowise.yml",
+                    "EnvFile":  "config/flowise.env",
+                    "DependsOn":  [
+                                      "postgres"
+                                  ],
+                    "Group":  "ai-apps",
+                    "InternalPort":  3000
+                },
+    "pgadmin":  {
+                    "ComposeFile":  "compose/pgadmin.yml",
+                    "EnvFile":  "config/pgadmin.env",
+                    "DependsOn":  [
+                                      "postgres"
+                                  ],
+                    "Group":  "data",
+                    "InternalPort":  80
+                },
+    "ollama":  {
+                   "ComposeFile":  "compose/ollama.yml",
+                   "EnvFile":  "config/ollama.env",
+                   "DependsOn":  [
+
+                                 ],
+                   "Group":  "ai",
+                   "InternalPort":  11434
+               },
+    "minio":  {
+                  "ComposeFile":  "compose/minio.yml",
+                  "EnvFile":  "config/minio.env",
+                  "DependsOn":  [
+
+                                ],
+                  "Group":  "data",
+                  "InternalPort":  9001
+              },
+    "cliproxyapi":  {
+                        "ComposeFile":  "compose/cliproxyapi.yml",
+                        "EnvFile":  "config/cliproxyapi.env",
+                        "DependsOn":  [
+
+                                      ],
+                        "Group":  "automation",
+                        "InternalPort":  8317,
+                        "IsAPI":  true
+                    },
+    "n8n":  {
+                "ComposeFile":  "compose/n8n.yml",
+                "EnvFile":  "config/n8n.env",
+                "DependsOn":  [
+
+                              ],
+                "Group":  "automation",
+                "InternalPort":  5678
+            },
+    "uptime-kuma":  {
+                        "ComposeFile":  "compose/uptime-kuma.yml",
+                        "EnvFile":  "config/uptime-kuma.env",
+                        "DependsOn":  [
+
+                                      ],
+                        "Group":  "monitoring",
+                        "InternalPort":  3001
+                    },
+    "rabbitmq":  {
+                     "ComposeFile":  "compose/rabbitmq.yml",
+                     "EnvFile":  "config/rabbitmq.env",
+                     "DependsOn":  [
+
+                                   ],
+                     "Group":  "optional",
+                     "InternalPort":  15672
+                 },
+    "gitea":  {
+                  "ComposeFile":  "compose/gitea.yml",
+                  "EnvFile":  "config/gitea.env",
+                  "DependsOn":  [
+                                    "postgres"
+                                ],
+                  "Group":  "development",
+                  "InternalPort":  3000
+              }
+}

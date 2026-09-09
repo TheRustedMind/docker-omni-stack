@@ -68,7 +68,7 @@ Before you can run this infrastructure, your Windows machine must be configured 
    ```
 
 5. **Access:**
-   Your services should now be accessible on localhost via the ports mapped in their respective `.env` files.
+   Your services should now be accessible on `http://<service>.localhost`.
 
 ## Troubleshooting
 

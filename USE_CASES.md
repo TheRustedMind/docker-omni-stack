@@ -1,6 +1,6 @@
 # Use Cases & Deployment Blueprints
 
-Because this infrastructure is highly modular, you don't need to run all 21 services at once. You can mix and match services to build exactly what you need. 
+Because this infrastructure is highly modular, you don't need to run all 22 services at once. You can mix and match services to build exactly what you need. 
 
 > [!IMPORTANT]
 > **Execution Context:**
@@ -24,13 +24,13 @@ Here are three concrete examples of ecosystems you can instantly deploy.
 - `qdrant` (Vector Database for RAG and document search)
 
 **How to deploy it:**
-Because the script handles dependency mapping, you simply need to bring up `open-webui` and `qdrant`. The binary will automatically pull in `ollama`, `litellm`, and `postgres` (needed by litellm).
+Because the script handles dependency mapping, you simply need to bring up `open-webui` and `qdrant`. The binary will automatically pull in `ollama` (needed by open-webui).
 
 ```powershell
 .\stack up open-webui qdrant
 ```
 
-**Result:** You will have a fully functional AI chat interface running on `localhost:3000` (or whichever port you specified in `.env`), completely offline.
+**Result:** You will have a fully functional AI chat interface running on `http://open-webui.localhost`, completely offline.
 
 ---
 
@@ -46,7 +46,7 @@ Because the script handles dependency mapping, you simply need to bring up `open
 
 **How to deploy it:**
 ```powershell
-.\stack up n8n tika cliproxyapi
+.\stack up n8n tika cliproxyapi postgres
 ```
 
 **Result:** `n8n` acts as the orchestrator. You can build visual workflows in n8n that fetch PDFs, send them to the internal `http://tika:9998` endpoint to extract text, and then save the structured text directly into the `postgres` database. 
@@ -70,7 +70,42 @@ Because the script handles dependency mapping, you simply need to bring up `open
 **Result:** 
 - Push your code to your local `gitea` instance.
 - Test your webhooks and local APIs using `hoppscotch`.
-- Configure `uptime-kuma` to monitor all your internal endpoints using Docker DNS (e.g., configuring it to ping `http://hoppscotch:3000`).
+- Configure `uptime-kuma` to monitor all your internal endpoints via their Caddy domains (e.g., configuring it to ping `http://hoppscotch.localhost`).
+
+---
+
+## 4. Secure Database Management with Zero-Trust Identity
+
+**Goal:** Run a Web UI for PostgreSQL (pgAdmin) that is securely hidden behind a Caddy reverse proxy and protected by Authentik identity verification (ForwardAuth).
+
+**Required Services:**
+- `postgres` (Relational Database)
+- `pgadmin` (Database Web UI)
+- `caddy` (Reverse Proxy)
+- `authentik` (Identity Provider & ForwardAuth)
+
+**How to deploy it:**
+```powershell
+.\stack up pgadmin caddy authentik
+```
+*(Dependencies like `postgres` and `redis` will start automatically).*
+
+**How to configure the Zero-Trust Proxy:**
+By default, the `Caddyfile` is configured to route `pgadmin.localhost` through Authentik. However, Authentik requires a brief one-time setup to authorize the proxy:
+1. Go to `http://authentik.localhost/if/flow/initial-setup/` and follow the prompts to create your default `akadmin` password.
+2. Go to **Admin Interface** > **Applications** > **Providers** > Create a **Proxy Provider**.
+   - Name: `pgadmin-proxy`
+   - Authorization flow: `default-provider-authorization-explicit-consent`
+   - Type: `Forward auth (single application)`
+   - External host: `https://pgadmin.localhost`
+3. Go to **Applications** > Create an **Application**.
+   - Name: `pgAdmin`
+   - Slug: `pgadmin`
+   - Provider: `pgadmin-proxy`
+4. Go to **Outposts** > Edit the **authentik Embedded Outpost** and add the `pgAdmin` application to it.
+
+**Result:** 
+When you visit `http://pgadmin.localhost` in your browser, Caddy will intercept the request, redirect you to the Authentik login portal, and only allow you to access the pgAdmin database UI after you have successfully verified your identity!
 
 ---
 

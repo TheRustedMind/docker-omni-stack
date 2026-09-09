@@ -8,15 +8,19 @@ services:
       DB_PORT: 5432
       DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_DATABASE: ${POSTGRES_DB}
+      DB_DATABASE: dify_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
     volumes:
       - ${VOL_DIFY_STORAGE:-${PROJECT_DATA_DIR:-../data}/dify}:/app/api/storage
-    ports:
-      - "${DIFY_HOST_PORT}:5001"
-    networks:
-      - project-network
 
+    networks:
+      - ai-apps-network
+      - data-network
+    healthcheck:
+      test: [CMD-SHELL, 'wget --no-verbose --tries=1 --spider http://localhost:5001/ || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 volumes:
   dify_storage:

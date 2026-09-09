@@ -22,8 +22,11 @@ jobs:
           Write-Host "Installing ps2exe..."
           Install-Module -Name ps2exe -Scope CurrentUser -Force -AllowClobber
           
-          Write-Host "Compiling .\stack.ps1 to stack.exe..."
-          Invoke-ps2exe -InputFile .\stack.ps1 -OutputFile .\stack.exe -RequireAdmin:$false -NoConfigFile -Verbose
+          Write-Host "Running pre-compiler to bundle scripts..."
+          .\.github\build-exe.ps1
+          
+          Write-Host "Compiling .\stack-monolithic.ps1 to stack.exe..."
+          Invoke-ps2exe -InputFile .\stack-monolithic.ps1 -OutputFile .\stack.exe -RequireAdmin:$false -NoConfigFile -Verbose
           
           if (-not (Test-Path .\stack.exe)) {
               Write-Error "Compilation failed!"

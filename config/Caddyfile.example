@@ -1,0 +1,18 @@
+# Example Caddyfile demonstrating Authentik ForwardAuth
+# This will reverse proxy pgAdmin and protect it with zero-trust identity.
+
+# 1. Access pgadmin at http://pgadmin.localhost
+pgadmin.localhost {
+    # 2. Forward all authentication requests to the internal Authentik outpost
+    # --- AUTH_BLOCK_START ---
+    forward_auth authentik:9000 {
+        uri /outpost.goauthentik.io/auth/caddy
+        
+        # 3. Copy identity headers so the upstream app knows who logged in
+        copy_headers X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid X-Authentik-Jwt X-Authentik-Meta-Jwks X-Authentik-Meta-Outpost X-Authentik-Meta-Provider
+    }
+    # --- AUTH_BLOCK_END ---
+    
+    # 4. Proxy the authenticated traffic to the internal pgAdmin container
+    reverse_proxy pgadmin:80
+}

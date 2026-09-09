@@ -1,4 +1,0 @@
-networks:
-  project-network:
-    name: ${PROJECT_NETWORK}
-    driver: bridge

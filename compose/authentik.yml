@@ -1,24 +1,57 @@
 services:
   authentik:
     image: ghcr.io/goauthentik/server:latest
-    container_name: ${AUTHENTIK_CONTAINER_NAME}
+    container_name: ${AUTHENTIK_CONTAINER_NAME:-authentik}
+    command: server
     restart: unless-stopped
     environment:
       AUTHENTIK_REDIS__HOST: redis
       AUTHENTIK_POSTGRESQL__HOST: postgres
       AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
-      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB}
+      AUTHENTIK_POSTGRESQL__NAME: authentik_db
       AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
-      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-default_secret_change_me}
     volumes:
       - ${VOL_AUTHENTIK_MEDIA:-${PROJECT_DATA_DIR:-../data}/authentik/media}:/media
       - ${VOL_AUTHENTIK_TEMPLATES:-${PROJECT_DATA_DIR:-../data}/authentik/custom-templates}:/templates
-    ports:
-      - "${AUTHENTIK_HTTP_PORT}:9000"
-      - "${AUTHENTIK_HTTPS_PORT}:9443"
     networks:
-      - project-network
+      - auth-network
+      - data-network
+
+    healthcheck:
+      test: [CMD-SHELL, 'wget --no-verbose --tries=1 --spider http://localhost:9000/ || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: ${AUTHENTIK_WORKER_CONTAINER_NAME:-authentik_worker}
+    command: worker
+    restart: unless-stopped
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__NAME: authentik_db
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-default_secret_change_me}
+    # `user: root` and the docker socket volume are optional.
+    # See more for the docker socket integration here:
+    # https://goauthentik.io/docs/outposts/integrations/docker
+    # Removing `user: root` also prevents the worker from fixing the permissions
+    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
+    # (1000:1000 by default)
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${VOL_AUTHENTIK_MEDIA:-${PROJECT_DATA_DIR:-../data}/authentik/media}:/media
+      - ${VOL_AUTHENTIK_CERTS:-${PROJECT_DATA_DIR:-../data}/authentik/certs}:/certs
+      - ${VOL_AUTHENTIK_TEMPLATES:-${PROJECT_DATA_DIR:-../data}/authentik/custom-templates}:/templates
+    networks:
+      - auth-network
+      - data-network
 
 volumes:
   authentik_media:
   authentik_templates:
+  authentik_certs:

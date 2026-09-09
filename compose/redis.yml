@@ -6,7 +6,12 @@ services:
     volumes:
       - ${VOL_REDIS_DATA:-${PROJECT_DATA_DIR:-../data}/redis}:/data
     networks:
-      - project-network
+      - data-network
 
+    healthcheck:
+      test: [CMD-SHELL, 'redis-cli ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 volumes:
   redis_data:

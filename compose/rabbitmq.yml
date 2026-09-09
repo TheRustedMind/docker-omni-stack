@@ -8,11 +8,14 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     volumes:
       - ${VOL_RABBITMQ_DATA:-${PROJECT_DATA_DIR:-../data}/rabbitmq}:/var/lib/rabbitmq
-    ports:
-      - "${RABBITMQ_PORT}:5672"
-      - "${RABBITMQ_UI_PORT}:15672"
-    networks:
-      - project-network
 
+    networks:
+      - optional-network
+
+    healthcheck:
+      test: [CMD-SHELL, 'rabbitmq-diagnostics -q ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 volumes:
   rabbitmq_data:
