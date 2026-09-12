@@ -1,4 +1,4 @@
-$ProjectRoot = "c:\Docker"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 $SourceStack = Join-Path $ProjectRoot "stack.ps1"
 $TargetStack = Join-Path $ProjectRoot "stack-monolithic.ps1"
 

@@ -1,5 +1,5 @@
 param (
-    [string]$ProjectRoot = "c:\Docker"
+    [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot)
 )
 
 $JsonPath = Join-Path $ProjectRoot "test-results.json"

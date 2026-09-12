@@ -2,6 +2,17 @@ use std::fs;
 use std::process::Command;
 use crate::config::get_project_root;
 
+fn build_command(base_args: Vec<&str>) -> (String, Vec<String>) {
+    let exe_path = format!("{}/stack.exe", get_project_root());
+    if std::path::Path::new(&exe_path).exists() {
+        (exe_path, base_args.iter().map(|s| s.to_string()).collect())
+    } else {
+        let mut args = vec!["-File".to_string(), "stack.ps1".to_string()];
+        args.extend(base_args.iter().map(|s| s.to_string()));
+        ("powershell".to_string(), args)
+    }
+}
+
 #[tauri::command]
 pub fn execute_setup(use_volumes: bool) -> Result<String, String> {
     let global_env_path = format!("{}/config\\global.env", get_project_root());
@@ -19,12 +30,13 @@ pub fn execute_setup(use_volumes: bool) -> Result<String, String> {
         }
     }
     
-    let mut args = vec!["-File", "stack.ps1", "setup"];
+    let mut base_args = vec!["setup"];
     if use_volumes {
-        args.push("-UseVolumes");
+        base_args.push("-UseVolumes");
     }
+    let (cmd, args) = build_command(base_args);
     
-    let output = Command::new("powershell")
+    let output = Command::new(cmd)
         .current_dir(get_project_root())
         .args(&args)
         .output()
@@ -39,11 +51,12 @@ pub fn execute_setup(use_volumes: bool) -> Result<String, String> {
 
 #[tauri::command]
 pub fn execute_up(services: Vec<String>) -> Result<String, String> {
-    let mut args = vec!["-File", "stack.ps1", "up"];
+    let mut base_args = vec!["up"];
     let services_strs: Vec<&str> = services.iter().map(|s| s.as_str()).collect();
-    args.extend(services_strs);
+    base_args.extend(services_strs);
+    let (cmd, args) = build_command(base_args);
     
-    let output = Command::new("powershell")
+    let output = Command::new(cmd)
         .current_dir(get_project_root())
         .args(&args)
         .output()
@@ -60,12 +73,12 @@ pub fn execute_up(services: Vec<String>) -> Result<String, String> {
 pub fn trust_certificate() -> Result<String, String> {
     let _ = Command::new("docker")
         .current_dir(get_project_root())
-        .args(&["cp", "caddy:/data/caddy/pki/authorities/local/root.crt", "caddy-root.crt"])
+        .args(["cp", "caddy:/data/caddy/pki/authorities/local/root.crt", "caddy-root.crt"])
         .output();
         
-    let output = Command::new("powershell")
+    let _output = Command::new("powershell")
         .current_dir(get_project_root())
-        .args(&["-Command", "Start-Process powershell -ArgumentList '-Command \"Import-Certificate -FilePath caddy-root.crt -CertStoreLocation Cert:\\LocalMachine\\Root\"' -Verb RunAs -Wait"])
+        .args(["-Command", "Start-Process powershell -ArgumentList '-Command \"Import-Certificate -FilePath caddy-root.crt -CertStoreLocation Cert:\\LocalMachine\\Root\"' -Verb RunAs -Wait"])
         .output()
         .map_err(|e| e.to_string())?;
         
@@ -74,11 +87,12 @@ pub fn trust_certificate() -> Result<String, String> {
 
 #[tauri::command]
 pub fn execute_restart(services: Vec<String>) -> Result<String, String> {
-    let mut args = vec!["-File", "stack.ps1", "restart"];
+    let mut base_args = vec!["restart"];
     let services_strs: Vec<&str> = services.iter().map(|s| s.as_str()).collect();
-    args.extend(services_strs);
+    base_args.extend(services_strs);
+    let (cmd, args) = build_command(base_args);
     
-    let output = Command::new("powershell")
+    let output = Command::new(cmd)
         .current_dir(get_project_root())
         .args(&args)
         .output()
@@ -93,9 +107,10 @@ pub fn execute_restart(services: Vec<String>) -> Result<String, String> {
 
 #[tauri::command]
 pub fn execute_stop(service: String) -> Result<String, String> {
-    let output = Command::new("powershell")
+    let (cmd, args) = build_command(vec!["stop", &service]);
+    let output = Command::new(cmd)
         .current_dir(get_project_root())
-        .args(&["-File", "stack.ps1", "stop", &service])
+        .args(&args)
         .output()
         .map_err(|e| e.to_string())?;
         
@@ -108,9 +123,10 @@ pub fn execute_stop(service: String) -> Result<String, String> {
 
 #[tauri::command]
 pub fn execute_down() -> Result<String, String> {
-    let output = Command::new("powershell")
+    let (cmd, args) = build_command(vec!["down"]);
+    let output = Command::new(cmd)
         .current_dir(get_project_root())
-        .args(&["-File", "stack.ps1", "down"])
+        .args(&args)
         .output()
         .map_err(|e| e.to_string())?;
         

@@ -1,6 +1,6 @@
 param (
     [string[]]$TargetServices,
-    [string]$ProjectRoot = "c:\Docker",
+    [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
     [string[]]$ComposeArgs
 )
 
