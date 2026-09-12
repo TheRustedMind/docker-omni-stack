@@ -13,7 +13,7 @@ pub struct VolumeInfo {
 #[tauri::command]
 pub fn get_container_status(service: String) -> Result<String, String> {
     let output = Command::new("docker")
-        .args(&["ps", "--filter", &format!("label=com.docker.compose.service={}", service), "--format", "{{.Status}}"])
+        .args(["ps", "--filter", &format!("label=com.docker.compose.service={}", service), "--format", "{{.Status}}"])
         .output()
         .map_err(|e| e.to_string())?;
     
@@ -82,7 +82,7 @@ pub fn get_fallback_volumes(service: &str) -> Vec<VolumeInfo> {
 #[tauri::command]
 pub fn get_service_volumes(service: String) -> Result<Vec<VolumeInfo>, String> {
     let output = Command::new("docker")
-        .args(&["ps", "-a", "--filter", &format!("label=com.docker.compose.service={}", service), "--format", "{{.Names}}"])
+        .args(["ps", "-a", "--filter", &format!("label=com.docker.compose.service={}", service), "--format", "{{.Names}}"])
         .output().map_err(|e| e.to_string())?;
         
     let container_name = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -91,7 +91,7 @@ pub fn get_service_volumes(service: String) -> Result<Vec<VolumeInfo>, String> {
     }
     
     let output = Command::new("docker")
-        .args(&["inspect", "--format", "{{json .Mounts}}", &container_name])
+        .args(["inspect", "--format", "{{json .Mounts}}", &container_name])
         .output().map_err(|e| e.to_string())?;
         
     let json_str = String::from_utf8_lossy(&output.stdout);
@@ -143,12 +143,12 @@ pub fn upload_to_volume(mount_type: String, name_or_source: String, local_path: 
         if is_archive {
             if local_path.to_lowercase().ends_with(".zip") {
                 let output = Command::new("powershell")
-                    .args(&["-Command", &format!("Expand-Archive -Path '{}' -DestinationPath '{}' -Force", local_path, dest_dir)])
+                    .args(["-Command", &format!("Expand-Archive -Path '{}' -DestinationPath '{}' -Force", local_path, dest_dir)])
                     .output().map_err(|e| e.to_string())?;
                 if !output.status.success() { return Err(String::from_utf8_lossy(&output.stderr).to_string()); }
             } else {
                 let output = Command::new("tar")
-                    .args(&["-xf", &local_path, "-C", dest_dir])
+                    .args(["-xf", &local_path, "-C", dest_dir])
                     .output().map_err(|e| e.to_string())?;
                 if !output.status.success() { return Err(String::from_utf8_lossy(&output.stderr).to_string()); }
             }
@@ -167,7 +167,7 @@ pub fn upload_to_volume(mount_type: String, name_or_source: String, local_path: 
         
         if wipe {
             let output = Command::new("docker")
-                .args(&["run", "--rm", "-v", &format!("{}:/vol", vol_name), "alpine", "sh", "-c", "rm -rf /vol/*"])
+                .args(["run", "--rm", "-v", &format!("{}:/vol", vol_name), "alpine", "sh", "-c", "rm -rf /vol/*"])
                 .output().map_err(|e| e.to_string())?;
             if !output.status.success() { return Err(String::from_utf8_lossy(&output.stderr).to_string()); }
         }
@@ -175,7 +175,7 @@ pub fn upload_to_volume(mount_type: String, name_or_source: String, local_path: 
         let container_name = format!("upload_dummy_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
         
         let output = Command::new("docker")
-            .args(&["container", "create", "--name", &container_name, "-v", &format!("{}:/vol", vol_name), "alpine", "tail", "-f", "/dev/null"])
+            .args(["container", "create", "--name", &container_name, "-v", &format!("{}:/vol", vol_name), "alpine", "tail", "-f", "/dev/null"])
             .output().map_err(|e| e.to_string())?;
         if !output.status.success() { return Err(String::from_utf8_lossy(&output.stderr).to_string()); }
         
@@ -183,16 +183,16 @@ pub fn upload_to_volume(mount_type: String, name_or_source: String, local_path: 
         let dest_path = format!("{}:/{}", container_name, file_name);
         
         let output = Command::new("docker")
-            .args(&["cp", &local_path, &dest_path])
+            .args(["cp", &local_path, &dest_path])
             .output().map_err(|e| e.to_string())?;
             
         if !output.status.success() { 
-            let _ = Command::new("docker").args(&["rm", "-f", &container_name]).output();
+            let _ = Command::new("docker").args(["rm", "-f", &container_name]).output();
             return Err(String::from_utf8_lossy(&output.stderr).to_string()); 
         }
         
         if is_archive {
-            let _ = Command::new("docker").args(&["start", &container_name]).output();
+            let _ = Command::new("docker").args(["start", &container_name]).output();
             
             let extract_args = if local_path.to_lowercase().ends_with(".zip") {
                 vec!["exec", container_name.as_str(), "sh", "-c", "cd /vol && unzip \"/\" && rm \"/\"", "--", file_name]
@@ -205,18 +205,18 @@ pub fn upload_to_volume(mount_type: String, name_or_source: String, local_path: 
                 .output().map_err(|e| e.to_string())?;
                 
             if !output.status.success() { 
-                let _ = Command::new("docker").args(&["rm", "-f", &container_name]).output();
+                let _ = Command::new("docker").args(["rm", "-f", &container_name]).output();
                 return Err(String::from_utf8_lossy(&output.stderr).to_string()); 
             }
         } else {
-            let _ = Command::new("docker").args(&["start", &container_name]).output();
+            let _ = Command::new("docker").args(["start", &container_name]).output();
             
             let extract_args = vec!["exec", container_name.as_str(), "sh", "-c", "mv \"/\" /vol/ || true", "--", file_name];
             
             let _ = Command::new("docker").args(&extract_args).output();
         }
         
-        let _ = Command::new("docker").args(&["rm", "-f", &container_name]).output();
+        let _ = Command::new("docker").args(["rm", "-f", &container_name]).output();
     }
     
     Ok("Success".to_string())
@@ -236,7 +236,7 @@ pub fn list_volume_files(mount_type: String, name_or_source: String) -> Result<V
         }
     } else {
         let output = Command::new("docker")
-            .args(&["run", "--rm", "-v", &format!("{}:/vol", name_or_source), "alpine", "ls", "-1p", "/vol"])
+            .args(["run", "--rm", "-v", &format!("{}:/vol", name_or_source), "alpine", "ls", "-1p", "/vol"])
             .output()
             .map_err(|e| e.to_string())?;
             
@@ -268,7 +268,7 @@ pub fn check_docker_status() -> bool {
 #[tauri::command]
 pub fn start_docker_engine() -> Result<String, String> {
     let output = Command::new("powershell")
-        .args(&["-Command", "Start-Process 'C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe'"])
+        .args(["-Command", "Start-Process 'C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe'"])
         .output()
         .map_err(|e| e.to_string())?;
         

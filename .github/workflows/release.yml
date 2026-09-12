@@ -1,4 +1,4 @@
-name: Release Pipeline
+﻿name: Release Pipeline
 
 on:
   release:
@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Compile stack.exe
         shell: powershell
@@ -34,11 +34,29 @@ jobs:
           }
           Write-Host "Compilation successful!"
 
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build gui.exe
+        shell: powershell
+        run: |
+          cd omni-gui
+          npm install
+          npm run tauri build
+
       - name: Prepare Release Artifacts
         shell: powershell
         run: |
           Write-Host "Zipping release payload..."
-          Compress-Archive -Path .\stack.exe, .\config, .\compose -DestinationPath .\docker-omni-stack-release.zip
+          Copy-Item .\omni-gui\src-tauri\target\release\omni-gui.exe -Destination .\gui.exe
+          Compress-Archive -Path .\stack.exe, .\gui.exe, .\config, .\compose -DestinationPath .\docker-omni-stack-release.zip
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
@@ -47,7 +65,7 @@ jobs:
           files: .\docker-omni-stack-release.zip
 
       - name: Upload Artifact (For Manual Runs)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: github.event_name == 'workflow_dispatch'
         with:
           name: docker-omni-stack-release

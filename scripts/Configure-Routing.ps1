@@ -9,7 +9,7 @@ param (
     [string]$ProjectName
 )
 
-$ProjectRoot = "c:\Docker"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 $DynamicComposePath = Join-Path $ProjectRoot "compose/caddy-dynamic.yml"
 $CaddyfilePath = Join-Path $ProjectRoot "apps/caddy/Caddyfile"
 

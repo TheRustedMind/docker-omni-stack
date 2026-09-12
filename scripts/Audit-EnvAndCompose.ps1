@@ -1,6 +1,6 @@
-. c:\Docker\scripts\Registry.ps1
+. (Join-Path $ProjectRoot "scripts\Registry.ps1")
 
-$ProjectRoot = "c:\Docker"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 $Errors = @()
 $Warnings = @()
 
